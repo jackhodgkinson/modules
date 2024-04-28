@@ -243,6 +243,7 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
                 model_name = f"{model_name}_no_const_feat"
                 new_feat_num = feat_num - num_con_feat_rem
                 feat_pct = new_feat_num/feat_num
+                start = datetime.now()
 
                 ## Fit the model
                 model.fit(train_features, train_labels).transform(train_features)
@@ -410,12 +411,17 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
 
             # Test the full model on test dataset
             ## Build and fit the model
+            start = datetime.now()
             full_model = LDA() 
             full_model.fit(train_features, train_labels).transform(train_features)
 
             ## Complete Predictions 
             pred = full_model.predict(test_features)
             pred_prob = full_model.predict_proba(test_features)
+            
+             ## End model fitting time
+        end = datetime.now()
+        run_time = (end-start).total_seconds()
 
             ## Calculate Accuracy Metrics
             if n_classes != 2: 
@@ -439,6 +445,7 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
                 print("Model: full_model")
                 print()
                 print("Scores based on test set:")
+                print("Execution Time:" run_time, "seconds"
                 print("Accuracy Score:",acc_score)
                 print("F1 Score:",f1score)
                 print("Log Loss:", logloss)
@@ -472,10 +479,15 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
 
 
             # Fit the optimal model
+            start = datetime.now()
             opt_model.fit(train_features, train_labels).transform(train_features)
 
             pred = opt_model.predict(test_features)
             pred_prob = opt_model.predict_proba(test_features)
+            
+             ## End model fitting time
+            end = datetime.now()
+            run_time = (end-start).total_seconds()
 
             if n_classes != 2: 
                 f1_avg = 'weighted'
@@ -502,6 +514,7 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
 
                 print()
                 print("Scores based on test set:")
+                print("Execution Time:", run_time, "seconds")
                 print("Accuracy Score:",acc_score)
                 print("F1 Score:",f1score)
                 print("Log Loss:", logloss)
@@ -1015,12 +1028,15 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
             
             # Test the full model on test dataset
             ## Build and fit the model
+            start = datetime.now()
             full_model = LogReg(max_iter = 500, multi_class = 'ovr', n_jobs = -1) 
             full_model.fit(train_features, train_labels)
 
             ## Complete Predictions 
             pred = full_model.predict(test_features)
             pred_prob = full_model.predict_proba(test_features)
+            end = datetime.now()
+            run_time = (end-start).total_seconds()
 
             ## Check convergence and ensure correct parameters specified based on number of classes
             if n_classes != 2: 
@@ -1054,6 +1070,7 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
                 print(f"Convergence?: {converg}")
                 print()
                 print("Scores based on test set:")
+                print("Execution Time",run_time,"seconds")
                 print("Accuracy Score:",acc_score)
                 print("F1 Score:",f1score)
                 print("Log Loss:", logloss)
@@ -1087,12 +1104,15 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
                  
             # Test optimal model
             ## Fit model
+            start = datetime.now()
             opt_model = LogReg(**config_params)
             opt_model.fit(train_features, train_labels)
 
             ## Complete Predictions 
             pred = opt_model.predict(test_features)
             pred_prob = opt_model.predict_proba(test_features)
+            end = datetime.now()
+            run_time = (end-start).total_seconds()          
 
             ## Check convergence and ensure correct parameters specified based on number of classes
             if n_classes != 2: 
@@ -1135,6 +1155,7 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
 
                 print()
                 print("Scores based on test set:")
+                print("Execution Time:",run_time,"seconds")
                 print("Accuracy Score:",acc_score)
                 print("F1 Score:",f1score)
                 print("Log Loss:", logloss)
