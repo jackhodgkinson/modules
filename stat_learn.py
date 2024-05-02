@@ -456,7 +456,7 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
 
             if pct != 100:
                 # Load or Generate MI Scores for training dataset
-                score_path = file_path+f"Results/{name}/mutual_information.npy"
+                score_path = file_path+f"Results/{name}/mutual_information_{colour_change}.npy"
                 if os.path.exists(score_path):
                     MI_Scores = np.load(score_path)
                     print("Mutual Information Scores loaded")
@@ -578,11 +578,11 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
         models = {}
 
         # Load or Generate MI Scores for training dataset
-        score_path = file_path+f"Results/{name}/mutual_information.npy"
+        score_path = file_path+f"Results/{name}/mutual_information_{colour_change}.npy"
         if os.path.exists(score_path):
             MI_Scores = np.load(score_path)
             print("Mutual Information Scores loaded")
-        
+
         else: 
             MI_Scores = MI(train_features, train_labels, discrete_features = False, random_state = random_seed)
             np.save(score_path, MI_Scores)
@@ -1081,7 +1081,7 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
                 
             if pct != 100:
                 # Load or Generate MI Scores for training dataset
-                score_path = file_path+f"Results/{name}/mutual_information.npy"
+                score_path = file_path+f"Results/{name}/mutual_information_{colour_change}.npy"
                 if os.path.exists(score_path):
                     MI_Scores = np.load(score_path)
                     print("Mutual Information Scores loaded")
