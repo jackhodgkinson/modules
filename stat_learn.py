@@ -95,7 +95,7 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
         models = {}
         
         # Load or Generate MI Scores for training dataset
-        score_path = file_path+f"Results/{name}/mutual_information.npy"
+        score_path = file_path+f"Results/{name}/mutual_information_{colour_change}.npy"
         if os.path.exists(score_path):
             MI_Scores = np.load(score_path)
             print("Mutual Information Scores loaded")
@@ -420,8 +420,8 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
             pred_prob = full_model.predict_proba(test_features)
             
              ## End model fitting time
-        end = datetime.now()
-        run_time = (end-start).total_seconds()
+            end = datetime.now()
+            run_time = (end-start).total_seconds()
 
             ## Calculate Accuracy Metrics
             if n_classes != 2: 
@@ -445,7 +445,7 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
                 print("Model: full_model")
                 print()
                 print("Scores based on test set:")
-                print("Execution Time:" run_time, "seconds"
+                print("Execution Time:", run_time, "seconds")
                 print("Accuracy Score:",acc_score)
                 print("F1 Score:",f1score)
                 print("Log Loss:", logloss)
