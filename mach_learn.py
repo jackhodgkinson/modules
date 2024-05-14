@@ -268,7 +268,7 @@ def conv_nn(name, train, test, val, random_seed, colour_change):
     check = Checkpoint(f_params=folder_path+"params.pt", f_history = folder_path+'history.json')
     
     # Write to file 
-    path3 = folder_path+f'cnn_{colour_change.lower()}_train.txt'
+    path3 = folder_path+f'{name}_cnn_{colour_change.lower()}_train.txt'
     with open(path3, mode='w') as file:
         sys.stdout = file 
         print("CONVOLUTIONAL NEURAL NETWORK STATISTICS")
@@ -419,7 +419,7 @@ def xg_boost(name,train,test,val,stage,random_seed,colour_change):
         metric = "logloss"
                 
     # Start writing to file
-    path = folder_path+f'xgboost_results_{colour_change.lower()}.txt'
+    path = folder_path+f'{name}_xgboost_results_{colour_change.lower()}.txt'
     with open(path, mode='w') as file:
         sys.stdout = file   
         print("XGBOOST STATISTICS")

@@ -85,7 +85,7 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
     if stage == "TRAIN":
         
         #Start writing the figures to the file
-        path = folder_path+f'lda_results_{colour_change.lower()}.txt'
+        path = folder_path+f'{name}_lda_results_{colour_change.lower()}.txt'
         with open(path, mode='w') as file:
                 sys.stdout = file   
                 print("LDA STATISTICS")
@@ -379,21 +379,33 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
         # Create graph showing percentage of features with accuracy score
         scoring = ['Accuracy','F1','Log Loss','Prediction']
         fs_pct = range(100,55,-5)
+        
+        # Create a single figure with four subplots
+        fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+        fig.suptitle(f'LDA Model Tuning for {name} on the validation data', fontsize=20)
+        
         for index, score in enumerate(scoring):
             i = int(index + 7)
             baseline_data = [value[i] for key, value in models.items() if 'full' in key] + [value[i] for key, value in models.items() if 'baseline' in key]
-            plt.clf()
-            plt.cla()
-            plt.scatter(fs_pct[1:], baseline_data[1:], zorder = 2)
-            plt.plot(fs_pct[1:], baseline_data[1:], zorder = 1, label = "Baseline")
-            plt.scatter(fs_pct[0], baseline_data[0], zorder = 2, c='black', marker='D', s=50, label = "Full Model")
-            plt.gca().invert_xaxis()
-            plt.xlabel('Percentage of Original Features')
-            plt.ylabel(f'{score} Score')
-            plt.title(f'LDA {score} score calculated on the validation dataset \n as a result of feature selection for {name}')
-            plt.legend(bbox_to_anchor=(0.3, -0.15), loc='upper left')
-            plt.tight_layout()
-            plt.savefig(folder_path+f'{name}_LDA_graph_{colour_change.lower()}_{score.replace(" ", "")}.jpeg')           
+            
+            # Determine subplot position
+            row = (i-7) // 2
+            col = (i-7) % 2
+            ax = axs[row, col]
+
+            ax.scatter(fs_pct[1:], baseline_data[1:], zorder=2)
+            ax.plot(fs_pct[1:], baseline_data[1:], zorder=1, label="Baseline")
+            ax.scatter(fs_pct[0], baseline_data[0], zorder=2, c='black', marker='D', s=50, label="Full Model")
+            ax.invert_xaxis()
+            ax.set_xlabel('Percentage of Original Features', fontsize=14)
+            ax.set_ylabel(f'{score} Score',fontsize=14)
+            ax.set_title(f'{score} Score', fontsize=18)
+            ax.legend(bbox_to_anchor=(0.3, -0.15), loc='upper left',fontsize=14)
+            ax.tick_params(axis='both', which='major', labelsize=12)  
+            ax.tick_params(axis='both', which='minor', labelsize=10)
+
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        plt.savefig(folder_path+f'{name}_LDA_graph_{colour_change.lower()}.jpeg')           
 
         #Order the optimal dictionary into a list displaying the optimal model at the top
         models = [[key] + value for key, value in models.items()]
@@ -401,7 +413,7 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
 
         # Write results to an Excel File
         df = pd.DataFrame(models, columns = ['Model Name','Parameters','Run Time','Feature Colour','Feature Selection', 'Method of Feature Selection', 'Number of Features', 'Percentage of Original Features','Accuracy Score', 'F1 Score', 'Log Loss','Prediction Score'])
-        df.to_csv(folder_path+f'model_training_{colour_change.lower()}.csv', index=False)
+        df.to_csv(folder_path+f'{name}_LDA_model_training_{colour_change.lower()}.csv', index=False)
 
     elif stage == "TEST":
 
@@ -435,7 +447,7 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
             prediction_score = (f1score+acc_score)/(2*logloss)
 
             ## Write to log file 
-            path3 = folder_path+f'lda_results_{colour_change.lower()}_optimal.txt'
+            path3 = folder_path+f'{name}_lda_results_{colour_change.lower()}_optimal.txt'
             with open(path3, mode='w') as file:
                 sys.stdout = file 
                 print("LDA STATISTICS")
@@ -453,8 +465,11 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
                 print('-' * 50)
                 print()
                 sys.stdout = sys.__stdout__
+                
+            if pct == 100:
+                sys.exit()
 
-            if pct != 100:
+            else:
                 # Load or Generate MI Scores for training dataset
                 score_path = file_path+f"Results/{name}/mutual_information_{colour_change}.npy"
                 if os.path.exists(score_path):
@@ -472,11 +487,6 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
                 # Features Selection
                 train_features = select_best_features_pct(train_features, MI_Scores, pct)
                 test_features = select_best_features_pct(test_features, MI_Scores, pct)
-
-            else:
-                fs_flag = "N"
-                fs_method = ""
-
 
             # Fit the optimal model
             start = datetime.now()
@@ -507,9 +517,9 @@ def lda(name,train,test,val,stage,random_seed, parameters,colour_change):
                 print(f"Model Name: {config_name}")
                 print(f"Parameters: {config_params}")
                 print(f"Feature Selection?: {fs_flag}")
-                print(f"Method of Feature Selection: {fs_method}")
 
                 if fs_flag == "Y":
+                    print(f"Method of Feature Selection: {fs_method}")
                     print(f"Percentage of kept features: {pct}")
 
                 print()
@@ -568,7 +578,7 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
     if stage == "TRAIN":    
     
         #Start writing to file
-        path = folder_path+f'logreg_results_{colour_change.lower()}.txt'
+        path = folder_path+f'{name}_logreg_results_{colour_change.lower()}.txt'
         with open(path, mode='w') as file:
             sys.stdout = file   
             print(f"LOGISTIC REGRESSION STATISTICS")
@@ -985,29 +995,41 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
         scoring = ['Accuracy','F1','Log Loss','Prediction']
         LASSO_pct = (models['LASSO'][6]*100)
         fs_pct = range(100,55,-5)
+        fig, axs = plt.subplots(2, 2, figsize=(12, 14))
+        fig.suptitle(f'Logistic Regression Model Tuning for {name} on the validation data', fontsize=20)
         for index, score in enumerate(scoring):
             i = int(index + 8)
             Ridge1_data = [value[i] for key, value in models.items() if 'full' in key] + [value[i] for key, value in models.items() if 'Ridge_LBFGS' in key] 
             Ridge2_data = [value[i] for key, value in models.items() if 'Ridge_SAG' in key and 'Ridge_SAGA' not in key]
             Ridge3_data = [value[i] for key, value in models.items() if 'Ridge_SAGA' in key]
             LASSO_data = [value[i] for key, value in models.items() if 'LASSO' in key]
+            
+            
+            row = (i-8) // 2
+            col = (i-8) % 2
+            ax = axs[row, col]
+
             plt.clf()
             plt.cla()
-            plt.scatter(fs_pct[1:], Ridge1_data[1:], zorder = 2)
-            plt.plot(fs_pct[1:], Ridge1_data[1:], label = 'Baseline', zorder = 1)
-            plt.scatter(fs_pct, Ridge2_data, zorder = 2)
-            plt.plot(fs_pct, Ridge2_data, label = 'Ridge with SAG solver', zorder = 1)
-            plt.scatter(fs_pct, Ridge3_data, zorder = 2)
-            plt.plot(fs_pct, Ridge3_data, label = 'Ridge with SAGA solver', zorder = 1)
-            plt.scatter(LASSO_pct, LASSO_data, zorder = 2, label = 'LASSO')
-            plt.scatter(fs_pct[0], Ridge1_data[0], zorder = 2, c='black', marker='D', s=50, label = "Full Model")
-            plt.gca().invert_xaxis()
-            plt.xlabel('Percentage of Original Features')
-            plt.ylabel(f'{score} Score')
-            plt.title(f'Logistic Regression {score} score calculated on the validation dataset \n as a result of feature selection for {name}')
-            plt.legend(bbox_to_anchor=(0.3, -0.15), loc='upper left')
-            plt.tight_layout()
-            plt.savefig(folder_path+f'{name}_LR_graph_{colour_change.lower()}_{score.replace(" ", "")}.jpeg')  
+            ax.scatter(fs_pct[1:], Ridge1_data[1:], zorder = 2)
+            ax.plot(fs_pct[1:], Ridge1_data[1:], label = 'Baseline', zorder = 1)
+            ax.scatter(fs_pct, Ridge2_data, zorder = 2)
+            ax.plot(fs_pct, Ridge2_data, label = 'Ridge with SAG solver', zorder = 1)
+            ax.scatter(fs_pct, Ridge3_data, zorder = 2)
+            ax.plot(fs_pct, Ridge3_data, label = 'Ridge with SAGA solver', zorder = 1)
+            ax.scatter(LASSO_pct, LASSO_data, zorder = 2, label = 'LASSO')
+            ax.scatter(fs_pct[0], Ridge1_data[0], zorder = 2, c='black', marker='D', s=50, label = "Full Model")
+            ax.invert_xaxis()
+            ax.set_xlabel('Percentage of Original Features', fontsize=14)
+            ax.set_ylabel(f'{score} Score', fontsize=14)
+            ax.set_title(f'{score} Score', fontsize=18)
+            ax.tick_params(axis='both', which='major', labelsize=12)  
+            ax.tick_params(axis='both', which='minor', labelsize=10)
+            
+            
+        plt.legend(bbox_to_anchor=(0.2, -0.15), loc='upper left', fontsize=14)
+        plt.tight_layout()
+        plt.savefig(folder_path+f'{name}_LR_graph_{colour_change.lower()}.jpeg')  
             
         #Order the optimal dictionary into a list displaying the optimal model at the top
         models = [[key] + value for key, value in models.items()]
@@ -1015,7 +1037,7 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
          
         # Write results to an Excel File
         df = pd.DataFrame(models, columns = ['Model Name','Parameters','Run Time','Feature Colour','Feature Selection', 'Method of Feature Selection', 'Number of Features', 'Percentage of Original Features', 'Convergence', 'Accuracy Score', 'F1 Score', 'Log Loss', 'Prediction Score'])
-        df.to_csv(folder_path+f'model_training_{colour_change.lower()}.csv', index=False)
+        df.to_csv(folder_path+f'{name}_LogReg_model_training_{colour_change.lower()}.csv', index=False)
 
     elif stage == "TEST":
         
@@ -1059,7 +1081,7 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
             prediction_score = (f1score+acc_score)/(2*logloss)
 
             ## Write to log file 
-            path3 = folder_path+f'logreg_results_{colour_change.lower()}_optimal.txt'
+            path3 = folder_path+f'{name}_logreg_results_{colour_change.lower()}_optimal.txt'
             with open(path3, mode='w') as file:
                 sys.stdout = file 
                 print("LOGISTIC REGRESSION STATISTICS")
@@ -1101,6 +1123,12 @@ def logistic_regression(name, train, test, val, stage, random_seed, parameters,c
             elif config_params['penalty'] == 'l1':
                 fs_flag = "Y"
                 fs_method = "L1 regularisation"
+                
+            else:
+                # Flags for Output 
+                fs_flag = "N"
+                fs_method = ""
+
                  
             # Test optimal model
             ## Fit model
